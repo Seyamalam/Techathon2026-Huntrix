@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState, type ReactNode } from "react"
+import { useMemo, type ReactNode } from "react"
 import {
   Bar,
   BarChart,
@@ -13,11 +13,9 @@ import {
 import {
   IconAlertTriangle,
   IconBolt,
-  IconBulb,
   IconClock,
   IconLayoutDashboard,
   IconPlugConnected,
-  IconPropeller,
   IconRefresh,
   IconRobot,
   IconSparkles,
@@ -54,30 +52,13 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { OfficeLayoutSvg } from "@/components/office-layout-svg"
+import { initialEnergyState, useEnergyState } from "@/hooks/use-energy-state"
 import type {
-  Device,
   EnergyAlert,
   EnergyState,
   RoomSummary,
 } from "@/lib/energy-simulator"
-import { cn } from "@/lib/utils"
-
-const initialState: EnergyState = {
-  generatedAt: new Date(0).toISOString(),
-  simulatedClock: "--:--:--",
-  isAfterHours: false,
-  totalWatts: 0,
-  estimatedTodayKwh: 0,
-  activeDevices: 0,
-  deviceCount: 15,
-  rooms: [],
-  alerts: [],
-}
 
 const powerChartConfig = {
   watts: {
@@ -106,48 +87,6 @@ function formatTimestamp(value: string) {
   }).format(new Date(value))
 }
 
-function useEnergyState() {
-  const [state, setState] = useState<EnergyState>(initialState)
-  const [connection, setConnection] = useState<
-    "connecting" | "live" | "offline"
-  >("connecting")
-
-  useEffect(() => {
-    let active = true
-
-    async function loadState() {
-      try {
-        const response = await fetch("/api/state", { cache: "no-store" })
-
-        if (!response.ok) {
-          throw new Error(`State request failed: ${response.status}`)
-        }
-
-        const nextState = (await response.json()) as EnergyState
-
-        if (active) {
-          setState(nextState)
-          setConnection("live")
-        }
-      } catch {
-        if (active) {
-          setConnection("offline")
-        }
-      }
-    }
-
-    loadState()
-    const timer = window.setInterval(loadState, 2500)
-
-    return () => {
-      active = false
-      window.clearInterval(timer)
-    }
-  }, [])
-
-  return { state, connection }
-}
-
 export function LiveEnergyDashboard() {
   const { state, connection } = useEnergyState()
   const activeRatio = state.deviceCount
@@ -171,7 +110,7 @@ export function LiveEnergyDashboard() {
   ]
 
   return (
-    <main className="min-h-svh bg-background text-foreground">
+    <div className="bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-5 p-4 sm:p-6">
         <header className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="flex flex-col gap-3">
@@ -320,7 +259,7 @@ export function LiveEnergyDashboard() {
           </aside>
         </section>
       </div>
-    </main>
+    </div>
   )
 }
 
@@ -400,7 +339,7 @@ function ControlCard({
           </Progress>
           <p className="text-xs text-muted-foreground">
             Last sync{" "}
-            {generatedAt === initialState.generatedAt
+            {generatedAt === initialEnergyState.generatedAt
               ? "pending"
               : formatTimestamp(generatedAt)}
             .
@@ -448,20 +387,7 @@ function OfficeMap({ rooms }: { rooms: RoomSummary[] }) {
       </CardHeader>
       <CardContent>
         {rooms.length ? (
-          <div className="grid min-h-[520px] gap-3 lg:grid-cols-[0.85fr_1.15fr]">
-            <RoomZone
-              room={rooms.find((room) => room.id === "drawing-room")}
-              compact
-            />
-            <div className="grid gap-3">
-              <RoomZone
-                room={rooms.find((room) => room.id === "work-room-1")}
-              />
-              <RoomZone
-                room={rooms.find((room) => room.id === "work-room-2")}
-              />
-            </div>
-          </div>
+          <OfficeLayoutSvg rooms={rooms} />
         ) : (
           <div className="grid min-h-[520px] gap-3 lg:grid-cols-[0.85fr_1.15fr]">
             <Skeleton className="h-full min-h-[250px]" />
@@ -473,122 +399,6 @@ function OfficeMap({ rooms }: { rooms: RoomSummary[] }) {
         )}
       </CardContent>
     </Card>
-  )
-}
-
-function RoomZone({
-  room,
-  compact = false,
-}: {
-  room?: RoomSummary
-  compact?: boolean
-}) {
-  const fans = room?.devices.filter((device) => device.type === "fan") ?? []
-  const lights = room?.devices.filter((device) => device.type === "light") ?? []
-
-  return (
-    <div className="relative overflow-hidden rounded-lg border bg-muted/40 p-4">
-      <div className="flex h-full min-h-[250px] flex-col justify-between gap-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="truncate text-xl font-semibold">{room?.name}</h2>
-            <p className="text-xs text-muted-foreground">
-              {room?.activeDevices ?? 0} active · {room?.totalWatts ?? 0}W
-            </p>
-          </div>
-          <Badge variant="outline">
-            {room?.lightsOn ?? 0} lights · {room?.fansOn ?? 0} fans
-          </Badge>
-        </div>
-
-        <div
-          className={cn(
-            "grid flex-1 items-center gap-4",
-            compact ? "grid-cols-1" : "grid-cols-[1fr_0.9fr]"
-          )}
-        >
-          <div className="grid grid-cols-3 gap-3">
-            {lights.map((device) => (
-              <LightFixture key={device.id} device={device} />
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {fans.map((device) => (
-              <FanFixture key={device.id} device={device} />
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          <Furniture label="desk" />
-          <Furniture label="table" />
-          <Furniture label="chairs" />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function LightFixture({ device }: { device: Device }) {
-  const on = device.status === "on"
-
-  return (
-    <Tooltip>
-      <TooltipTrigger>
-        <div className="flex flex-col items-center gap-2">
-          <div
-            className={cn(
-              "flex size-16 items-center justify-center rounded-full border transition-all",
-              on ? "bg-primary/20 shadow-lg shadow-primary/35" : "bg-background"
-            )}
-          >
-            <IconBulb className={cn("size-7", on && "text-primary")} />
-          </div>
-          <span className="text-xs font-medium text-muted-foreground">
-            {device.name}
-          </span>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        {device.name}: {device.status.toUpperCase()}
-      </TooltipContent>
-    </Tooltip>
-  )
-}
-
-function FanFixture({ device }: { device: Device }) {
-  const on = device.status === "on"
-
-  return (
-    <Tooltip>
-      <TooltipTrigger>
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex size-20 items-center justify-center rounded-full border bg-background">
-            <IconPropeller
-              className={cn(
-                "size-11 text-muted-foreground",
-                on && "animate-[spin_0.75s_linear_infinite] text-primary"
-              )}
-            />
-          </div>
-          <span className="text-xs font-medium text-muted-foreground">
-            {device.name}
-          </span>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        {device.name}: {device.status.toUpperCase()}
-      </TooltipContent>
-    </Tooltip>
-  )
-}
-
-function Furniture({ label }: { label: string }) {
-  return (
-    <div className="h-10 rounded-md border bg-background text-center text-xs leading-10 font-medium text-muted-foreground">
-      {label}
-    </div>
   )
 }
 
@@ -677,7 +487,7 @@ function DiscordPreview({ state }: { state: EnergyState }) {
   )
 }
 
-function DeviceTable({ rooms }: { rooms: RoomSummary[] }) {
+export function DeviceTable({ rooms }: { rooms: RoomSummary[] }) {
   const devices = rooms.flatMap((room) => room.devices)
 
   return (

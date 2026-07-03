@@ -186,7 +186,7 @@ function buildAlerts(
           id: `after-hours-${room.id}`,
           severity: room.activeDevices >= 4 ? "critical" : "warning",
           title: `${room.name} still active after hours`,
-          message: `${room.activeDevices} device${room.activeDevices === 1 ? "" : "s"} are still on and drawing ${room.totalWatts}W.`,
+          message: `${room.activeDevices} device${room.activeDevices === 1 ? " is" : "s are"} still on and drawing ${room.totalWatts}W.`,
           timestamp,
           roomId: room.id,
         })

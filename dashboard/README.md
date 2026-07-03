@@ -7,7 +7,9 @@ Next.js + shadcn dashboard for the Techathon office energy monitoring prototype.
 - Simulates 15 office devices across 3 rooms.
 - Exposes the shared live state at `/api/state`.
 - Renders an animated top-view office dashboard.
+- Uses an SVG office layout where lights visibly glow/off and fan blades spin at state-driven speeds.
 - Uses shadcn Cards, Badges, Alerts, Progress, Tabs, Table, ScrollArea, Tooltip, Skeleton, and Chart components.
+- Uses shadcn Sidebar for multi-page navigation.
 - Shows current watts, estimated kWh, room status, device status, and alerts.
 - Includes a Discord bot response preview based on the same API state.
 
@@ -19,6 +21,14 @@ bun run dev
 ```
 
 Open `http://localhost:3000`.
+
+Routes:
+
+```text
+/              Live dashboard
+/devices       Device table
+/architecture  System architecture diagram
+```
 
 ## API
 
