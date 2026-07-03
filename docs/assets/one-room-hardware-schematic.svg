@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">Representative one-room hardware schematic</title>
+  <desc id="desc">ESP32 controls five relay channels for two fans and three lights, reads isolated switch feedback, and optionally measures current through an ACS712 sensor.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,8 L11,4 z" fill="#111827"/>
+    </marker>
+    <style>
+      .bg{fill:#f8fafc}.box{fill:#ffffff;stroke:#cbd5e1;stroke-width:2}.power{stroke:#dc2626}.signal{stroke:#2563eb}.sense{stroke:#16a34a}.wire{fill:none;stroke-width:4;marker-end:url(#arrow)}.title{font:700 22px system-ui,sans-serif;fill:#0f172a}.body{font:500 15px system-ui,sans-serif;fill:#475569}.small{font:600 13px system-ui,sans-serif;fill:#64748b}.pin{font:700 12px ui-monospace,monospace;fill:#0f172a}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="680" rx="28"/>
+  <text x="60" y="70" class="title">Representative Wokwi/Tinkercad Circuit - One Room</text>
+  <text x="60" y="100" class="body">Conceptual design for 2 fans and 3 lights. Real mains hardware would require isolation, fuses, and certified relay modules.</text>
+
+  <rect class="box" x="70" y="170" width="250" height="260" rx="18"/>
+  <text x="105" y="215" class="title">ESP32</text>
+  <text x="105" y="252" class="pin">GPIO 16-21: relay control</text>
+  <text x="105" y="282" class="pin">GPIO 32-36: state inputs</text>
+  <text x="105" y="312" class="pin">GPIO 34: ACS712 analog</text>
+  <text x="105" y="352" class="body">Publishes live room state over Wi-Fi to backend API.</text>
+
+  <rect class="box" x="430" y="150" width="230" height="300" rx="18"/>
+  <text x="465" y="195" class="title">5V relay board</text>
+  <text x="465" y="232" class="body">CH1 Fan 1</text>
+  <text x="465" y="262" class="body">CH2 Fan 2</text>
+  <text x="465" y="292" class="body">CH3 Light 1</text>
+  <text x="465" y="322" class="body">CH4 Light 2</text>
+  <text x="465" y="352" class="body">CH5 Light 3</text>
+  <text x="465" y="392" class="small">Opto-isolated module preferred</text>
+
+  <rect class="box" x="770" y="130" width="170" height="80" rx="14"/>
+  <text x="815" y="178" class="title">Fan 1</text>
+  <rect class="box" x="770" y="230" width="170" height="80" rx="14"/>
+  <text x="815" y="278" class="title">Fan 2</text>
+  <rect class="box" x="770" y="330" width="170" height="80" rx="14"/>
+  <text x="805" y="378" class="title">Light 1</text>
+  <rect class="box" x="770" y="430" width="170" height="80" rx="14"/>
+  <text x="805" y="478" class="title">Light 2</text>
+  <rect class="box" x="770" y="530" width="170" height="80" rx="14"/>
+  <text x="805" y="578" class="title">Light 3</text>
+
+  <rect class="box" x="1010" y="315" width="130" height="115" rx="14"/>
+  <text x="1032" y="360" class="title">ACS712</text>
+  <text x="1032" y="392" class="body">room current</text>
+
+  <path class="wire signal" d="M320 235 H420"/>
+  <path class="wire sense" d="M320 310 C360 520 690 620 760 585"/>
+  <path class="wire power" d="M660 170 H760"/>
+  <path class="wire power" d="M660 270 H760"/>
+  <path class="wire power" d="M660 370 H760"/>
+  <path class="wire power" d="M660 470 H760"/>
+  <path class="wire power" d="M660 570 H760"/>
+  <path class="wire power" d="M940 370 H1000"/>
+
+  <text x="350" y="225" class="small">relay GPIO</text>
+  <text x="475" y="520" class="small">isolated feedback inputs return ON/OFF state</text>
+  <text x="960" y="300" class="small">AC line passes through current sensor</text>
+</svg>

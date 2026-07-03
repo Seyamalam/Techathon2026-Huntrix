@@ -1,12 +1,24 @@
 import { fetchEnergyState, findRoom } from "./api"
 import {
+  formatAlerts,
+  formatDevices,
   formatHelp,
+  formatOffHours,
   formatRoom,
   formatStatus,
   formatUsage,
 } from "./formatters"
 
-const knownCommands = new Set(["status", "room", "usage", "help", "commands"])
+const knownCommands = new Set([
+  "status",
+  "room",
+  "usage",
+  "alerts",
+  "devices",
+  "offhours",
+  "help",
+  "commands",
+])
 
 export async function handleBotCommand(content: string, prefix: string) {
   if (!content.startsWith(prefix)) {
@@ -35,6 +47,18 @@ export async function handleBotCommand(content: string, prefix: string) {
 
   if (command === "usage") {
     return formatUsage(state)
+  }
+
+  if (command === "alerts") {
+    return formatAlerts(state)
+  }
+
+  if (command === "devices") {
+    return formatDevices(state)
+  }
+
+  if (command === "offhours") {
+    return formatOffHours(state)
   }
 
   const roomQuery = args.join(" ")

@@ -4,11 +4,13 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   IconActivity,
+  IconAlertTriangle,
   IconBolt,
+  IconBrandDiscord,
+  IconChartAreaLine,
   IconDeviceDesktopAnalytics,
   IconGitBranch,
   IconLayoutDashboard,
-  IconRobot,
 } from "@tabler/icons-react"
 
 import {
@@ -38,9 +40,24 @@ const navItems = [
     icon: IconDeviceDesktopAnalytics,
   },
   {
+    title: "Alerts",
+    href: "/alerts",
+    icon: IconAlertTriangle,
+  },
+  {
+    title: "Analytics",
+    href: "/analytics",
+    icon: IconChartAreaLine,
+  },
+  {
     title: "Architecture",
     href: "/architecture",
     icon: IconGitBranch,
+  },
+  {
+    title: "Discord Bot",
+    href: "/bot",
+    icon: IconBrandDiscord,
   },
 ]
 
@@ -98,11 +115,14 @@ export function AppSidebar() {
                 <SidebarMenuBadge>1</SidebarMenuBadge>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Discord Bot">
-                  <IconRobot />
+                <SidebarMenuButton
+                  tooltip="Discord Bot"
+                  render={<Link href="/bot" />}
+                >
+                  <IconBrandDiscord />
                   <span>Discord bot</span>
                 </SidebarMenuButton>
-                <SidebarMenuBadge>4</SidebarMenuBadge>
+                <SidebarMenuBadge>8</SidebarMenuBadge>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

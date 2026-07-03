@@ -2,18 +2,17 @@
 
 ## Overview
 
-The system has one source of truth: the backend. The simulated device layer updates the backend state, and both the dashboard and Discord bot read from that same backend.
+The system has one source of truth: the backend state exposed by the dashboard package. The simulated device layer updates the state, and both the dashboard and Discord bot read from the same backend contract.
 
 ```text
 Office Device Simulator
-  -> Backend State Store
+  -> Next.js Backend API + InstantDB Snapshot
     -> REST API
-    -> WebSocket Events
       -> Web Dashboard
       -> Discord Bot
 ```
 
-The final visual system diagram should be exported as an image, not Mermaid.
+The exported system diagram is stored at [docs/assets/system-architecture.svg](assets/system-architecture.svg). It is SVG, not Mermaid.
 
 ## Components
 
@@ -34,9 +33,9 @@ Responsible for:
 - Calculating current power usage.
 - Calculating room-level usage.
 - Generating alerts.
-- Broadcasting live updates.
+- Serving a fresh state snapshot for the dashboard and bot.
 
-Current implementation: the dashboard package exposes `GET /api/state` through a Next.js route handler. This keeps the demo simple while still giving the dashboard and Discord bot one shared backend contract.
+Current implementation: the dashboard package exposes `GET /api/state` through a Next.js route handler. The dashboard can also use an InstantDB snapshot when configured, while the Discord bot reads the same state endpoint.
 
 ### Web Dashboard
 
@@ -64,6 +63,9 @@ Current commands:
 !room work1
 !room work2
 !usage
+!alerts
+!devices
+!offhours
 !help
 ```
 
@@ -71,18 +73,11 @@ Current commands:
 
 1. The simulator updates one or more device states.
 2. Backend recalculates usage and alerts.
-3. Backend broadcasts `state:update`.
-4. Dashboard receives the update and animates the new state.
-5. Discord bot reads the same backend state when a command is used.
-6. If a new alert is detected, the bot may post it to a Discord channel.
+3. Dashboard polls or reads the shared snapshot and animates the new state.
+4. Discord bot reads the same backend state when a command is used.
+5. If a new alert is detected, the bot may post it to a Discord channel.
 
 ## API Contract
-
-```text
-GET /api/health
-```
-
-Returns service health.
 
 ```text
 GET /api/state
@@ -90,40 +85,8 @@ GET /api/state
 
 Returns rooms, devices, usage, alerts, and timestamp.
 
-```text
-GET /api/rooms
-```
-
-Returns room summaries.
-
-```text
-GET /api/rooms/:roomId
-```
-
-Returns one room with its devices and usage.
-
-```text
-GET /api/usage
-```
-
-Returns total watts, room-level watts, and estimated kWh.
-
-```text
-GET /api/alerts
-```
-
-Returns active alerts.
-
-## Realtime Contract
-
-```text
-state:update
-```
-
-Broadcast whenever the simulator changes state or alerts are recalculated.
-
 ## Reliability Notes
 
-- The dashboard should show a disconnected state if WebSocket drops.
+- The dashboard should show a disconnected state if the API cannot be reached.
 - The Discord bot should handle backend errors with a friendly retry message.
 - The simulator should avoid impossible values, such as a device drawing watts while off.

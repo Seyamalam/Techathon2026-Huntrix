@@ -1,6 +1,6 @@
 # Techathon 2026 - Office Energy Monitor
 
-A planned real-time office energy monitoring system for the Techathon Nationals Hackathon preliminary round.
+A real-time office energy monitoring system for the Techathon Nationals Hackathon preliminary round.
 
 The project goal is to monitor office lights and fans through one shared backend, a live animated web dashboard, and a Discord bot. The system uses simulated IoT device data because no physical hardware is required for the preliminary round.
 
@@ -34,6 +34,9 @@ This project follows the fixed room/device definition: 15 devices total.
   - `!status`
   - `!room <name>`
   - `!usage`
+  - `!alerts`
+  - `!devices`
+  - `!offhours`
 - System architecture diagram.
 - Representative hardware/electrical schematic for one room.
 - Clear setup and run instructions.
@@ -41,31 +44,25 @@ This project follows the fixed room/device definition: 15 devices total.
 
 ## Target Architecture
 
-```text
-Simulated Device Layer
-  -> Backend API + WebSocket Server
-    -> Live Web Dashboard
-    -> Discord Bot
-```
+![System architecture](docs/assets/system-architecture.svg)
 
 Both the dashboard and Discord bot must read from the same backend state. The bot must not generate independent random data.
 
-## Planned Tech Stack
+## Tech Stack
 
-- Frontend: React, TypeScript, Vite or Next.js
-- Styling: Tailwind CSS
-- Animation: Framer Motion and CSS animations
-- Icons: lucide-react
-- Backend: Node.js, Express
-- Real-time transport: Socket.IO
+- Frontend/backend: Next.js App Router, React, TypeScript
+- UI: Tailwind CSS and shadcn/ui
+- Charts: Recharts through shadcn chart components
+- Icons: Tabler Icons
+- Animation: CSS/SVG animations
+- Shared state: Next.js API route with InstantDB snapshot support
 - Discord bot: discord.js
-- Data source: in-memory simulator with optional JSON snapshot
-- Deployment: Vercel for frontend, Render/Railway for backend and bot
-- Diagrams: Excalidraw, draw.io, Figma, or Canva
+- Data source: deterministic simulated IoT device layer
+- Hardware concept: Wokwi ESP32 relay/sensing circuit
 
 ## Dashboard Experience
 
-The dashboard should feel like an office control room:
+The dashboard includes:
 
 - Top-view layout with Drawing Room, Work Room 1, and Work Room 2.
 - Lights glow when on.
@@ -74,7 +71,20 @@ The dashboard should feel like an office control room:
 - Animated total watt meter.
 - Alerts visible at a glance.
 - Device list grouped by room.
-- Responsive layout for laptop demo screens.
+- Analytics page with live trend, room comparison, and fan/light split.
+- Discord bot page with command set and live response preview.
+- Architecture page with system and hardware diagrams.
+
+Routes:
+
+```text
+/              live overview and SVG floor plan
+/devices       device registry with runtime and last-changed fields
+/alerts        alert rules and active alert timeline
+/analytics     live charts and session peak load
+/architecture  system diagram and one-room schematic
+/bot           Discord command guide and live preview
+```
 
 ## Backend Data Model
 
@@ -93,24 +103,15 @@ type Device = {
 };
 ```
 
-The simulator should update device states over time and broadcast the full state through WebSocket events.
+The simulator updates device states over time and serves the full state through the shared backend endpoint.
 
-## Planned API
+## API
 
 ```text
-GET /api/health
 GET /api/state
-GET /api/rooms
-GET /api/rooms/:roomId
-GET /api/usage
-GET /api/alerts
 ```
 
-Planned WebSocket event:
-
-```text
-state:update
-```
+The dashboard polls this endpoint for demo-safe real-time updates, and the Discord bot reads the same endpoint for command responses.
 
 ## Alert Rules
 
@@ -130,6 +131,9 @@ Example commands:
 !room work1
 !room work2
 !usage
+!alerts
+!devices
+!offhours
 ```
 
 Bonus behavior: proactively post to a configured channel when a new alert appears.
@@ -148,11 +152,16 @@ Bonus behavior: proactively post to a configured channel when a new alert appear
 │   ├── lib/
 │   └── package.json
 ├── docs/
+│   ├── assets/
 │   ├── architecture.md
 │   ├── hardware-schematic.md
 │   ├── plan.md
 │   ├── team-contributions.md
 │   └── todo.md
+├── wokwi/
+│   ├── diagram.json
+│   ├── sketch.ino
+│   └── README.md
 ├── README.md
 ├── Rulebook.pdf
 └── Problem Statement (Preliminary Round) v1.2.pdf
@@ -210,8 +219,19 @@ Bot commands:
 !room work1
 !room work2
 !usage
+!alerts
+!devices
+!offhours
 !help
 ```
+
+## Diagrams And Hardware
+
+- System diagram: [docs/assets/system-architecture.svg](docs/assets/system-architecture.svg)
+- Hardware schematic: [docs/assets/one-room-hardware-schematic.svg](docs/assets/one-room-hardware-schematic.svg)
+- Hardware explanation: [docs/hardware-schematic.md](docs/hardware-schematic.md)
+- Wokwi representative circuit: [wokwi/diagram.json](wokwi/diagram.json)
+- Wokwi sketch: [wokwi/sketch.ino](wokwi/sketch.ino)
 
 ## Team Contribution Plan
 
@@ -235,4 +255,4 @@ See [docs/team-contributions.md](docs/team-contributions.md) for details.
 
 ## Current Status
 
-The dashboard and Discord bot are implemented as separate packages. The dashboard exposes the shared live state API, and the bot reads from that same endpoint.
+The dashboard and Discord bot are implemented as separate packages. The dashboard exposes the shared live state API, and the bot reads from that same endpoint. The repo also includes SVG diagrams and a representative Wokwi circuit for the hardware deliverable.

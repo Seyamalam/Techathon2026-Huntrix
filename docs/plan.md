@@ -31,16 +31,16 @@ The fastest path to a strong score is:
 
 ## Phase 1 - Foundation
 
-Create the project structure:
+Implemented project structure:
 
 ```text
-apps/api
-apps/web
-apps/bot
+dashboard
+bot
 docs
+wokwi
 ```
 
-Use TypeScript across all app packages if time allows. Keep the simulator simple and deterministic enough for demo testing.
+TypeScript is used across the dashboard/backend and bot packages. The simulator is deterministic enough for repeatable demos while still changing over time.
 
 ## Phase 2 - Backend And Simulator
 
@@ -57,24 +57,24 @@ Implementation plan:
   - Per-room watts.
   - Estimated kWh.
   - Alerts.
-- Broadcast updates through Socket.IO.
+- Serve updates through the shared `GET /api/state` contract and optional InstantDB snapshot.
 
 Trade-offs:
 
-- In-memory state is enough for a hackathon demo and keeps setup simple.
-- A database would add persistence but increase deployment and setup risk.
+- The Next.js API route keeps setup simple.
+- InstantDB support gives a clear path to a real shared backend without adding a separate server package.
 
 Validation:
 
 - Call `GET /api/state` and confirm all dashboard and bot values come from it.
-- Watch Socket.IO events update the dashboard without refresh.
+- Watch the dashboard poll live state without manual refresh.
 
 ## Phase 3 - Dashboard
 
 Implementation plan:
 
 - Build an office layout as the first visual focus.
-- Use CSS grid or absolute-positioned zones for three rooms.
+- Use an SVG top-view room plan for three rooms.
 - Show lights as glowing elements.
 - Show fans with spin animation while on.
 - Add live meters and alerts around the layout.
@@ -102,8 +102,8 @@ Implementation plan:
 
 Trade-offs:
 
-- Static friendly templates are safer than adding an LLM dependency under time pressure.
-- If the core app is stable, add optional LLM-powered phrasing later.
+- Friendly templates are safer than adding an LLM dependency under time pressure.
+- The bot now includes `!alerts`, `!devices`, and `!offhours` in addition to the required commands.
 
 Validation:
 
@@ -114,13 +114,13 @@ Validation:
 
 System diagram:
 
-- Use Excalidraw, draw.io, Figma, or Canva.
-- Show device simulator, backend API, WebSocket, dashboard, Discord bot, and user.
-- Export PNG into `docs/assets/`.
+- Use SVG, not Mermaid.
+- Show device simulator, backend API, dashboard, Discord bot, and user.
+- Export to `docs/assets/system-architecture.svg`.
 
 Hardware schematic:
 
-- Build a representative one-room design in Wokwi or Tinkercad.
+- Build a representative one-room design in Wokwi.
 - Use ESP32 or Arduino.
 - Model 2 fans and 3 lights as representative controlled/sensed loads.
 - Include safe conceptual use of relays or opto-isolated sensing.

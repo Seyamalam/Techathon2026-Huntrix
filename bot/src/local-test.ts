@@ -8,6 +8,9 @@ const commands = [
   `${config.prefix}room work1`,
   `${config.prefix}room work2`,
   `${config.prefix}usage`,
+  `${config.prefix}alerts`,
+  `${config.prefix}devices`,
+  `${config.prefix}offhours`,
   `${config.prefix}help`,
 ]
 

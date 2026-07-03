@@ -54,6 +54,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OfficeLayoutSvg } from "@/components/office-layout-svg"
 import { initialEnergyState, useEnergyState } from "@/hooks/use-energy-state"
+import { formatRelativeMinutes, formatTime } from "@/lib/format"
 import type {
   EnergyAlert,
   EnergyState,
@@ -77,15 +78,6 @@ const deviceChartConfig = {
     color: "var(--muted)",
   },
 } satisfies ChartConfig
-
-function formatTimestamp(value: string) {
-  return new Intl.DateTimeFormat("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  }).format(new Date(value))
-}
 
 export function LiveEnergyDashboard() {
   const { state, connection } = useEnergyState()
@@ -321,7 +313,7 @@ function ControlCard({
               Last update{" "}
               {generatedAt === initialEnergyState.generatedAt
                 ? "pending"
-                : formatTimestamp(generatedAt)}
+                : formatTime(generatedAt)}
             </Badge>
             <Badge variant={isAfterHours ? "destructive" : "secondary"}>
               {isAfterHours ? "Unoccupied schedule" : "Occupied schedule"}
@@ -422,7 +414,7 @@ function AlertsPanel({ alerts }: { alerts: EnergyAlert[] }) {
                   <IconAlertTriangle />
                   <AlertTitle>{alert.title}</AlertTitle>
                   <AlertDescription>
-                    {alert.message} · {formatTimestamp(alert.timestamp)}
+                    {alert.message} · {formatTime(alert.timestamp)}
                   </AlertDescription>
                 </Alert>
               ))
@@ -491,6 +483,8 @@ export function DeviceTable({ rooms }: { rooms: RoomSummary[] }) {
                 <TableHead>Room</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Runtime</TableHead>
+                <TableHead>Last changed</TableHead>
                 <TableHead className="text-right">Watts</TableHead>
               </TableRow>
             </TableHeader>
@@ -508,6 +502,14 @@ export function DeviceTable({ rooms }: { rooms: RoomSummary[] }) {
                     >
                       {device.status.toUpperCase()}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {device.status === "on"
+                      ? formatRelativeMinutes(device.minutesInCurrentState)
+                      : "off"}
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {formatTime(device.lastChanged)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {device.watts}W

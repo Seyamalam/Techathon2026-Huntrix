@@ -31,8 +31,8 @@
 - [x] Add per-room power breakdown.
 - [x] Add device status panel grouped by room.
 - [x] Add active alerts panel.
-- [ ] Make dashboard responsive for demo laptop screens.
-- [ ] Polish loading, empty, and disconnected states.
+- [x] Make dashboard responsive for demo laptop screens.
+- [x] Polish loading, empty, and disconnected states.
 
 ## Discord Bot
 
@@ -41,24 +41,27 @@
 - [x] Implement `!status`.
 - [x] Implement `!room <name>`.
 - [x] Implement `!usage`.
+- [x] Implement `!alerts`.
+- [x] Implement `!devices`.
+- [x] Implement `!offhours`.
 - [x] Humanize responses.
 - [x] Add proactive alert posting to configured channel.
 - [x] Document bot setup and permissions.
 
 ## Diagrams And Hardware
 
-- [ ] Create high-level system diagram without Mermaid.
-- [ ] Export diagram image to `docs/assets/`.
-- [ ] Create representative one-room circuit schematic in Wokwi or Tinkercad.
-- [ ] Export screenshot to `docs/assets/`.
-- [ ] Add pin mapping and electrical reasoning to docs.
+- [x] Create high-level system diagram without Mermaid.
+- [x] Export diagram image to `docs/assets/`.
+- [x] Create representative one-room circuit schematic in Wokwi or Tinkercad.
+- [x] Export schematic artifact to `docs/assets/`.
+- [x] Add pin mapping and electrical reasoning to docs.
 
 ## Documentation
 
-- [ ] Update README after implementation.
-- [ ] Add final setup instructions.
-- [ ] Add API endpoint documentation.
-- [ ] Add Discord command examples.
+- [x] Update README after implementation.
+- [x] Add final setup instructions.
+- [x] Add API endpoint documentation.
+- [x] Add Discord command examples.
 - [ ] Add deployment links.
 - [ ] Add screenshots.
 - [ ] Add demo video link.
@@ -67,8 +70,8 @@
 
 ## Validation
 
-- [ ] Confirm dashboard updates without refresh.
-- [ ] Confirm Discord bot and dashboard show the same backend state.
+- [x] Confirm dashboard updates without refresh.
+- [x] Confirm Discord bot and dashboard show the same backend state.
 - [ ] Test alert conditions.
 - [ ] Test setup from a fresh clone.
 - [ ] Record a clean 3-minute demo video.
