@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Ceiling Fan with Light</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            font-family: sans-serif;
+            margin: 0;
+            transition: background-color 0.4s ease;
+        }
+
+        /* Ambient room darkening when light is off, brightens when on */
+        body.room-lit {
+            background-color: #fefdf0;
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        /* Fan Button States */
+        #fan-toggle { background-color: #444; }
+        #fan-toggle.on { background-color: #dc3545; }
+
+        /* Light Button States */
+        #light-toggle { background-color: #6c757d; }
+        #light-toggle.on { background-color: #ffc107; color: #333; }
+
+        svg {
+            overflow: visible;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- UI Controls -->
+    <div class="controls">
+        <button id="fan-toggle" onclick="toggleFan()">Fan: OFF</button>
+        <button id="light-toggle" onclick="toggleLight()">Light: OFF</button>
+    </div>
+
+    <!-- The Ceiling Fan & Light SVG -->
+    <svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <!-- Fan Blade Gradient -->
+            <linearGradient id="blade-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#555" />
+                <stop offset="50%" stop-color="#333" />
+                <stop offset="100%" stop-color="#222" />
+            </linearGradient>
+
+            <!-- Motor Housing Gradient -->
+            <radialGradient id="motor-grad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#666" />
+                <stop offset="70%" stop-color="#444" />
+                <stop offset="100%" stop-color="#1a1a1a" />
+            </radialGradient>
+
+            <!-- Big Ambient Light Glow Gradient (Behind the fan) -->
+            <radialGradient id="ambient-glow-grad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fff7c2" stop-opacity="1" />
+                <stop offset="30%" stop-color="#ffe97d" stop-opacity="0.5" />
+                <stop offset="100%" stop-color="#ffe97d" stop-opacity="0" />
+            </radialGradient>
+
+            <!-- Glass Dome Light (ON State) -->
+            <radialGradient id="light-on-grad" cx="40%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="40%" stop-color="#fff3a1" />
+                <stop offset="100%" stop-color="#ffd000" />
+            </radialGradient>
+
+            <!-- Glass Dome Light (OFF State) -->
+            <radialGradient id="light-off-grad" cx="40%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#f0f0f0" />
+                <stop offset="70%" stop-color="#d6d6d6" />
+                <stop offset="100%" stop-color="#b5b5b5" />
+            </radialGradient>
+
+            <!-- General drop shadow for depth -->
+            <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="10" stdDeviation="8" flood-opacity="0.2"/>
+            </filter>
+        </defs>
+
+        <style>
+            /* --- FAN ANIMATION CSS --- */
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+
+            #fan-blades {
+                transform-origin: 200px 200px;
+                animation: spin 0.5s linear infinite;
+                animation-play-state: paused;
+            }
+
+            #fan-blades.spinning {
+                animation-play-state: running;
+            }
+
+            /* --- LIGHT TRANSITION CSS --- */
+            #ambient-glow {
+                opacity: 0;
+                transition: opacity 0.4s ease;
+                pointer-events: none;
+            }
+
+            #light-dome {
+                fill: url(#light-off-grad);
+                transition: fill 0.4s ease, filter 0.4s ease;
+            }
+
+            /* Active Light States */
+            .light-is-on #ambient-glow {
+                opacity: 1;
+            }
+
+            .light-is-on #light-dome {
+                fill: url(#light-on-grad);
+                filter: drop-shadow(0px 0px 12px rgba(255,215,0,0.8));
+            }
+        </style>
+
+        <!-- Entire Fan Structure Group -->
+        <g id="fan-structure" filter="url(#drop-shadow)">
+            
+            <!-- 1. Large Ambient Glow Layer (Behind everything except blades) -->
+            <circle id="ambient-glow" cx="200" cy="200" r="250" fill="url(#ambient-glow-grad)" />
+
+            <!-- 2. Rotating Blades Group -->
+            <g id="fan-blades">
+                <!-- Blade 1 -->
+                <g transform="rotate(0 200 200)">
+                    <path d="M 188 170 L 182 35 C 182 20, 218 20, 218 35 L 212 170 Z" fill="url(#blade-grad)" />
+                    <path d="M 192 160 L 188 40 C 188 30, 212 30, 212 40 L 208 160 Z" fill="#2a2a2a" opacity="0.3" />
+                </g>
+                <!-- Blade 2 -->
+                <g transform="rotate(120 200 200)">
+                    <path d="M 188 170 L 182 35 C 182 20, 218 20, 218 35 L 212 170 Z" fill="url(#blade-grad)" />
+                    <path d="M 192 160 L 188 40 C 188 30, 212 30, 212 40 L 208 160 Z" fill="#2a2a2a" opacity="0.3" />
+                </g>
+                <!-- Blade 3 -->
+                <g transform="rotate(240 200 200)">
+                    <path d="M 188 170 L 182 35 C 182 20, 218 20, 218 35 L 212 170 Z" fill="url(#blade-grad)" />
+                    <path d="M 192 160 L 188 40 C 188 30, 212 30, 212 40 L 208 160 Z" fill="#2a2a2a" opacity="0.3" />
+                </g>
+                <!-- Inner Rotor Component -->
+                <circle cx="200" cy="200" r="42" fill="#222" />
+            </g>
+
+            <!-- 3. Stationary Central Motor Housing -->
+            <circle cx="200" cy="200" r="45" fill="url(#motor-grad)" />
+            <circle cx="200" cy="200" r="45" fill="none" stroke="#222" stroke-width="1" />
+
+            <!-- 4. Stationary Central Light Fixture (Stays still while blades spin) -->
+            <g id="light-fixture">
+                <!-- Outer holding ring for the glass dome -->
+                <circle cx="200" cy="200" r="32" fill="#2d2d2d" />
+                <!-- The actual glowing glass dome -->
+                <circle id="light-dome" cx="200" cy="200" r="28" />
+                <!-- Subtle internal glass reflection shine -->
+                <path d="M 180 185 A 25 25 0 0 1 215 180" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.4" pointer-events="none" />
+            </g>
+            
+        </g>
+    </svg>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Toggle the Fan Spining State
+        function toggleFan() {
+            const blades = document.getElementById('fan-blades');
+            const button = document.getElementById('fan-toggle');
+            
+            blades.classList.toggle('spinning');
+            
+            if (blades.classList.contains('spinning')) {
+                button.textContent = 'Fan: ON';
+                button.classList.add('on');
+            } else {
+                button.textContent = 'Fan: OFF';
+                button.classList.remove('on');
+            }
+        }
+
+        // Toggle the Light Glow State
+        function toggleLight() {
+            const fanStructure = document.getElementById('fan-structure');
+            const button = document.getElementById('light-toggle');
+            const body = document.body;
+            
+            // Toggle the class on the wrapping SVG group to trigger CSS rules
+            fanStructure.classList.toggle('light-is-on');
+            // Toggle class on body to softly illuminate the HTML background page
+            body.classList.toggle('room-lit');
+            
+            if (fanStructure.classList.contains('light-is-on')) {
+                button.textContent = 'Light: ON';
+                button.classList.add('on');
+            } else {
+                button.textContent = 'Light: OFF';
+                button.classList.remove('on');
+            }
+        }
+    </script>
+</body>
+</html>
