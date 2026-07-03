@@ -178,6 +178,23 @@
   filter: drop-shadow(0 0 8px var(--office-map-fan-active));
 }
 
+.office-device-group {
+  transition: opacity 0.2s ease;
+}
+
+.office-device-group:hover,
+.office-device-group:focus-visible {
+  opacity: 0.92;
+}
+
+.office-device-hit-area {
+  pointer-events: all;
+}
+
+.office-device-group.selected-device {
+  filter: drop-shadow(0 0 10px var(--ring));
+}
+
 .office-light-glow-cone {
   opacity: 0;
   transition: opacity 0.3s ease;

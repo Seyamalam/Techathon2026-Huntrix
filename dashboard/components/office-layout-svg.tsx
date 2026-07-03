@@ -1,7 +1,28 @@
 "use client"
 
-import type { CSSProperties } from "react"
+import { useMemo, useState, type CSSProperties } from "react"
+import { toast } from "sonner"
+import {
+  IconBulb,
+  IconClockHour4,
+  IconPlugConnected,
+  IconPropeller,
+  IconX,
+} from "@tabler/icons-react"
 
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import { formatRelativeMinutes, formatTime } from "@/lib/format"
 import type { Device, RoomId, RoomSummary } from "@/lib/energy-simulator"
 import { cn } from "@/lib/utils"
 
@@ -65,6 +86,12 @@ const rooms: RoomBlueprint[] = [
   },
 ]
 
+type DevicePlacement = {
+  device: Device
+  point: DevicePoint
+  room: RoomBlueprint
+}
+
 function getDevice(allRooms: RoomSummary[], id: string) {
   return allRooms
     .flatMap((room) => room.devices)
@@ -83,48 +110,84 @@ function getFanDuration(device?: Device) {
 }
 
 export function OfficeLayoutSvg({ rooms: liveRooms }: { rooms: RoomSummary[] }) {
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
+  const [hoveredDevice, setHoveredDevice] = useState<DevicePlacement | null>(
+    null
+  )
+  const allDevices = useMemo(
+    () => liveRooms.flatMap((room) => room.devices),
+    [liveRooms]
+  )
+
+  function handleDeviceOpen(device: Device) {
+    setSelectedDevice(device)
+    toast(`${device.name} selected`, {
+      description: `${device.roomName} is ${device.status.toUpperCase()} at ${device.watts}W.`,
+    })
+  }
+
   return (
-    <div className="overflow-hidden rounded-lg border bg-card">
-      <svg
-        role="img"
-        aria-label="Live office IoT blueprint map"
-        viewBox="0 0 900 480"
-        className="h-auto w-full"
-      >
-        <defs>
-          <radialGradient id="office-beam-glow" cx="50%" cy="50%" r="50%">
-            <stop
-              offset="0%"
-              stopColor="var(--office-map-light-beam)"
-              stopOpacity="0.36"
-            />
-            <stop
-              offset="60%"
-              stopColor="var(--office-map-light-beam)"
-              stopOpacity="0.12"
-            />
-            <stop
-              offset="100%"
-              stopColor="var(--office-map-light-beam)"
-              stopOpacity="0"
-            />
-          </radialGradient>
-        </defs>
+    <>
+      <div className="overflow-hidden rounded-lg border bg-card">
+        <svg
+          role="img"
+          aria-label="Live office IoT blueprint map"
+          viewBox="0 0 900 480"
+          className="h-auto w-full"
+        >
+          <defs>
+            <radialGradient id="office-beam-glow" cx="50%" cy="50%" r="50%">
+              <stop
+                offset="0%"
+                stopColor="var(--office-map-light-beam)"
+                stopOpacity="0.36"
+              />
+              <stop
+                offset="60%"
+                stopColor="var(--office-map-light-beam)"
+                stopOpacity="0.12"
+              />
+              <stop
+                offset="100%"
+                stopColor="var(--office-map-light-beam)"
+                stopOpacity="0"
+              />
+            </radialGradient>
+          </defs>
 
-        <rect width="900" height="480" fill="var(--office-map-bg)" />
-        <BlueprintGrid />
-        <Architecture />
+          <rect width="900" height="480" fill="var(--office-map-bg)" />
+          <BlueprintGrid />
+          <Architecture />
 
-        {rooms.map((room) => (
-          <RoomLayer
-            key={room.id}
-            blueprint={room}
-            liveRoom={liveRooms.find((item) => item.id === room.id)}
-            liveRooms={liveRooms}
-          />
-        ))}
-      </svg>
-    </div>
+          {rooms.map((room) => (
+            <RoomLayer
+              key={room.id}
+              blueprint={room}
+              liveRoom={liveRooms.find((item) => item.id === room.id)}
+              liveRooms={liveRooms}
+              selectedDeviceId={selectedDevice?.id}
+              onDeviceOpen={handleDeviceOpen}
+              onDeviceHover={setHoveredDevice}
+            />
+          ))}
+          {hoveredDevice ? <DeviceHoverCard placement={hoveredDevice} /> : null}
+        </svg>
+      </div>
+      <DeviceDetailSheet
+        device={
+          selectedDevice
+            ? (allDevices.find((device) => device.id === selectedDevice.id) ??
+              selectedDevice)
+            : null
+        }
+        open={Boolean(selectedDevice)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedDevice(null)
+          }
+        }}
+      />
+    </>
   )
 }
 
@@ -176,10 +239,16 @@ function RoomLayer({
   blueprint,
   liveRoom,
   liveRooms,
+  selectedDeviceId,
+  onDeviceOpen,
+  onDeviceHover,
 }: {
   blueprint: RoomBlueprint
   liveRoom?: RoomSummary
   liveRooms: RoomSummary[]
+  selectedDeviceId?: string
+  onDeviceOpen: (device: Device) => void
+  onDeviceHover: (placement: DevicePlacement | null) => void
 }) {
   return (
     <g>
@@ -210,6 +279,10 @@ function RoomLayer({
           key={light.id}
           point={light}
           device={getDevice(liveRooms, light.id)}
+          room={blueprint}
+          selected={selectedDeviceId === light.id}
+          onOpen={onDeviceOpen}
+          onHover={onDeviceHover}
         />
       ))}
       {blueprint.fans.map((fan) => (
@@ -217,20 +290,76 @@ function RoomLayer({
           key={fan.id}
           point={fan}
           device={getDevice(liveRooms, fan.id)}
+          room={blueprint}
+          selected={selectedDeviceId === fan.id}
+          onOpen={onDeviceOpen}
+          onHover={onDeviceHover}
         />
       ))}
     </g>
   )
 }
 
-function LightNode({ point, device }: { point: DevicePoint; device?: Device }) {
+function LightNode({
+  point,
+  device,
+  room,
+  selected,
+  onOpen,
+  onHover,
+}: {
+  point: DevicePoint
+  device?: Device
+  room: RoomBlueprint
+  selected: boolean
+  onOpen: (device: Device) => void
+  onHover: (placement: DevicePlacement | null) => void
+}) {
   const active = device?.status === "on"
+  const canInteract = Boolean(device)
 
   return (
     <g
-      className={cn("office-device-group", active && "active-light")}
+      tabIndex={canInteract ? 0 : undefined}
+      role={canInteract ? "button" : undefined}
+      className={cn(
+        "office-device-group",
+        canInteract && "cursor-pointer outline-none",
+        active && "active-light",
+        selected && "selected-device"
+      )}
       aria-label={`${point.label}: ${device?.status ?? "unknown"}`}
+      onClick={() => {
+        if (device) {
+          onOpen(device)
+        }
+      }}
+      onKeyDown={(event) => {
+        if (device && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault()
+          onOpen(device)
+        }
+      }}
+      onMouseEnter={() => {
+        if (device) {
+          onHover({ device, point, room })
+        }
+      }}
+      onMouseLeave={() => onHover(null)}
+      onFocus={() => {
+        if (device) {
+          onHover({ device, point, room })
+        }
+      }}
+      onBlur={() => onHover(null)}
     >
+      <circle
+        cx={point.x}
+        cy={point.y}
+        r="24"
+        fill="transparent"
+        className="office-device-hit-area"
+      />
       <circle
         cx={point.x}
         cy={point.y}
@@ -251,18 +380,64 @@ function LightNode({ point, device }: { point: DevicePoint; device?: Device }) {
   )
 }
 
-function FanNode({ point, device }: { point: DevicePoint; device?: Device }) {
+function FanNode({
+  point,
+  device,
+  room,
+  selected,
+  onOpen,
+  onHover,
+}: {
+  point: DevicePoint
+  device?: Device
+  room: RoomBlueprint
+  selected: boolean
+  onOpen: (device: Device) => void
+  onHover: (placement: DevicePlacement | null) => void
+}) {
   const active = device?.status === "on"
   const style = {
     animationDuration: getFanDuration(device),
   } satisfies CSSProperties
+  const canInteract = Boolean(device)
 
   return (
     <g
-      className={cn("office-device-group", active && "active-fan")}
+      tabIndex={canInteract ? 0 : undefined}
+      role={canInteract ? "button" : undefined}
+      className={cn(
+        "office-device-group",
+        canInteract && "cursor-pointer outline-none",
+        active && "active-fan",
+        selected && "selected-device"
+      )}
       transform={`translate(${point.x}, ${point.y})`}
       aria-label={`${point.label}: ${device?.status ?? "unknown"}`}
+      onClick={() => {
+        if (device) {
+          onOpen(device)
+        }
+      }}
+      onKeyDown={(event) => {
+        if (device && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault()
+          onOpen(device)
+        }
+      }}
+      onMouseEnter={() => {
+        if (device) {
+          onHover({ device, point, room })
+        }
+      }}
+      onMouseLeave={() => onHover(null)}
+      onFocus={() => {
+        if (device) {
+          onHover({ device, point, room })
+        }
+      }}
+      onBlur={() => onHover(null)}
     >
+      <circle r="31" fill="transparent" className="office-device-hit-area" />
       <g
         className="office-fan-blade-group"
         stroke={
@@ -290,5 +465,171 @@ function FanNode({ point, device }: { point: DevicePoint; device?: Device }) {
         {active ? `, ${getFanDuration(device)} rotation` : ""}
       </title>
     </g>
+  )
+}
+
+function DeviceHoverCard({ placement }: { placement: DevicePlacement }) {
+  const { device, point, room } = placement
+  const width = 168
+  const height = 92
+  const x = Math.min(Math.max(point.x + 18, 10), 900 - width - 10)
+  const y = Math.min(Math.max(point.y - 38, 10), 480 - height - 10)
+
+  return (
+    <foreignObject
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      className="pointer-events-none"
+    >
+      <div className="flex h-full flex-col gap-2 rounded-lg border bg-popover p-3 text-popover-foreground shadow-lg">
+        <div className="flex items-center justify-between gap-2">
+          <div className="truncate text-sm font-semibold">{device.name}</div>
+          <Badge variant={device.status === "on" ? "default" : "secondary"}>
+            {device.status.toUpperCase()}
+          </Badge>
+        </div>
+        <div className="truncate text-xs text-muted-foreground">
+          {room.label} · {device.type}
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">Load</span>
+          <span className="font-mono font-medium">{device.watts}W</span>
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">Runtime</span>
+          <span className="font-mono font-medium">
+            {device.status === "on"
+              ? formatRelativeMinutes(device.minutesInCurrentState)
+              : "off"}
+          </span>
+        </div>
+      </div>
+    </foreignObject>
+  )
+}
+
+function DeviceDetailSheet({
+  device,
+  open,
+  onOpenChange,
+}: {
+  device: Device | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  if (!device) {
+    return null
+  }
+
+  const activePercent = Math.round((device.watts / device.ratedWatts) * 100)
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            {device.type === "fan" ? (
+              <IconPropeller data-icon="inline-start" />
+            ) : (
+              <IconBulb data-icon="inline-start" />
+            )}
+            {device.roomName} · {device.name}
+          </SheetTitle>
+          <SheetDescription>
+            Live device state from the shared office backend.
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="flex flex-col gap-5 px-6">
+          <div className="flex flex-wrap gap-2">
+            <Badge variant={device.status === "on" ? "default" : "secondary"}>
+              {device.status.toUpperCase()}
+            </Badge>
+            <Badge variant="outline">{device.type}</Badge>
+            <Badge variant="outline">{device.id}</Badge>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <DetailMetric
+              icon={<IconPlugConnected />}
+              label="Current draw"
+              value={`${device.watts}W`}
+            />
+            <DetailMetric
+              icon={<IconClockHour4 />}
+              label="Current state"
+              value={
+                device.status === "on"
+                  ? formatRelativeMinutes(device.minutesInCurrentState)
+                  : "off"
+              }
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="font-medium">Rated load usage</span>
+              <span className="text-muted-foreground tabular-nums">
+                {activePercent}%
+              </span>
+            </div>
+            <Progress value={activePercent} />
+          </div>
+
+          <Separator />
+
+          <div className="grid gap-3 text-sm">
+            <DetailRow label="Rated watts" value={`${device.ratedWatts}W`} />
+            <DetailRow
+              label="Last changed"
+              value={formatTime(device.lastChanged)}
+            />
+            <DetailRow
+              label="On since"
+              value={device.onSince ? formatTime(device.onSince) : "Not active"}
+            />
+            <DetailRow label="Room" value={device.roomName} />
+          </div>
+        </div>
+
+        <SheetFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <IconX data-icon="inline-start" />
+            Close
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+function DetailMetric({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border bg-muted p-3">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground [&_svg]:size-4">
+        {icon}
+        {label}
+      </div>
+      <div className="text-xl font-semibold tabular-nums">{value}</div>
+    </div>
+  )
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium tabular-nums">{value}</span>
+    </div>
   )
 }

@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { AppShell } from "@/components/app-shell"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
@@ -39,6 +40,7 @@ export default function RootLayout({
         <ThemeProvider>
           <TooltipProvider>
             <AppShell>{children}</AppShell>
+            <Toaster />
           </TooltipProvider>
         </ThemeProvider>
       </body>
