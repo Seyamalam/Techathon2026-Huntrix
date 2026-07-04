@@ -7,8 +7,22 @@ import { useEffect, useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { useEnergyState } from "@/hooks/use-energy-state"
 import type { Device } from "@/lib/energy-simulator"
-import { hardwareDevices } from "@/lib/hardware-circuit"
+import { hardwareDevices, type CircuitDevice } from "@/lib/hardware-circuit"
 import { cn } from "@/lib/utils"
+
+const wireStyles = {
+  sense: "bg-sky-500 shadow-[0_0_10px_rgb(14_165_233/0.45)]",
+  control: "bg-fuchsia-600 shadow-[0_0_10px_rgb(192_38_211/0.42)]",
+  load: "bg-amber-500 shadow-[0_0_10px_rgb(245_158_11/0.42)]",
+  return: "bg-muted-foreground/30",
+}
+
+const legend = [
+  { label: "Sense input to ESP32", className: wireStyles.sense },
+  { label: "ESP32 relay control", className: wireStyles.control },
+  { label: "Switched load output", className: wireStyles.load },
+  { label: "Common return / ground", className: wireStyles.return },
+]
 
 export function WokwiCircuitPreview() {
   const [ready, setReady] = useState(false)
@@ -46,7 +60,8 @@ export function WokwiCircuitPreview() {
         <div>
           <div className="text-sm font-medium">Drawing Room Wokwi preview</div>
           <div className="text-xs text-muted-foreground">
-            Live state drives the switch positions, relay labels, and LEDs.
+            One representative room: five sensed switches, five relay channels,
+            five loads.
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -59,56 +74,50 @@ export function WokwiCircuitPreview() {
       </div>
 
       <div className="overflow-x-auto bg-background">
-        <div className="min-w-[1040px] p-5">
+        <div className="min-w-[1320px] p-5">
           <div className="mb-5">
             <div className="text-xl font-semibold">
               ESP32 relay and state-sensing circuit
             </div>
             <div className="text-sm text-muted-foreground">
-              Same Drawing Room device IDs and wattages as the simulator.
+              Color-coded wiring mirrors the simulator pins for one room.
             </div>
           </div>
 
-          <div className="grid grid-cols-[210px_140px_72px_140px_72px_1fr] gap-x-5 gap-y-3">
-            <div />
-            <HeaderLabel>Sense input</HeaderLabel>
-            <HeaderLabel>Limit</HeaderLabel>
-            <HeaderLabel>Relay</HeaderLabel>
-            <HeaderLabel>Load LED</HeaderLabel>
-            <HeaderLabel>Mapped device</HeaderLabel>
+          <div className="grid grid-cols-[250px_1fr] gap-5">
+            <ControllerCard ready={ready} activeCount={activeCount} />
 
-            <div className="row-span-5 flex items-center justify-center rounded-lg border bg-card p-4 shadow-sm">
-              <div className="flex flex-col items-center gap-3">
-                {ready ? (
-                  <wokwi-esp32-devkit-v1 ledPower led1={activeCount > 0} />
-                ) : (
-                  <Fallback label="ESP32" />
-                )}
-                <div className="text-center">
-                  <div className="text-sm font-medium">ESP32 DevKit</div>
-                  <div className="text-xs text-muted-foreground">
-                    reads inputs, drives relays
-                  </div>
-                </div>
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-[110px_110px_95px_70px_95px_70px_135px_minmax(150px,1fr)_95px] px-3 text-xs font-medium uppercase text-muted-foreground">
+                <div>Device</div>
+                <div>Switch</div>
+                <div>Sense</div>
+                <div>Input</div>
+                <div>Output</div>
+                <div>Drive</div>
+                <div>Relay</div>
+                <div>Line</div>
+                <div>Indicator</div>
               </div>
+
+              {hardwareDevices.map((device) => {
+                const live = liveDevices.get(device.id)
+
+                return (
+                  <CircuitChannel
+                    key={device.id}
+                    ready={ready}
+                    device={device}
+                    active={live?.status === "on"}
+                  />
+                )
+              })}
             </div>
-
-            {hardwareDevices.map((device) => {
-              const live = liveDevices.get(device.id)
-              const isOn = live?.status === "on"
-
-              return (
-                <CircuitRow
-                  key={device.id}
-                  ready={ready}
-                  active={isOn}
-                  device={device}
-                />
-              )
-            })}
           </div>
 
-          <div className="mt-5 rounded-lg border bg-card p-3 text-xs text-card-foreground shadow-sm">
+          <WireLegend />
+
+          <div className="mt-4 rounded-lg border bg-card p-3 text-xs text-card-foreground shadow-sm">
             <div className="font-medium">Serial payload example</div>
             <code className="mt-1 block truncate text-muted-foreground">
               {"{\"id\":\"drawing-room-fan-1\",\"status\":\"on\",\"watts\":60,\"ratedWatts\":60}"}
@@ -120,46 +129,109 @@ export function WokwiCircuitPreview() {
   )
 }
 
-function CircuitRow({
+function ControllerCard({
   ready,
-  active,
-  device,
+  activeCount,
 }: {
   ready: boolean
-  active: boolean
-  device: (typeof hardwareDevices)[number]
+  activeCount: number
 }) {
   return (
-    <>
-      <WokwiPart>
+    <div className="flex min-h-[520px] flex-col items-center justify-center gap-5 rounded-lg border bg-card p-4 shadow-sm">
+      {ready ? (
+        <wokwi-esp32-devkit-v1 ledPower led1={activeCount > 0} />
+      ) : (
+        <Fallback label="ESP32" />
+      )}
+      <div className="text-center">
+        <div className="text-base font-medium">ESP32 DevKit</div>
+        <div className="text-xs text-muted-foreground">
+          reads switches, drives relays
+        </div>
+      </div>
+      <div className="grid w-full grid-cols-2 gap-2 text-xs">
+        <PinGroup title="Inputs" values={["32", "33", "25", "26", "27"]} />
+        <PinGroup title="Outputs" values={["16", "17", "18", "19", "21"]} />
+      </div>
+    </div>
+  )
+}
+
+function PinGroup({ title, values }: { title: string; values: string[] }) {
+  return (
+    <div className="rounded-md border bg-muted/40 p-2">
+      <div className="mb-1 font-medium">{title}</div>
+      <div className="flex flex-wrap gap-1">
+        {values.map((value) => (
+          <span
+            key={value}
+            className="rounded-sm bg-background px-1.5 py-0.5 font-mono text-[10px]"
+          >
+            GPIO {value}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CircuitChannel({
+  ready,
+  device,
+  active,
+}: {
+  ready: boolean
+  device: CircuitDevice
+  active: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        "grid min-h-[86px] grid-cols-[110px_110px_95px_70px_95px_70px_135px_minmax(150px,1fr)_95px] items-center gap-3 rounded-lg border bg-card p-3 shadow-sm",
+        active && "border-primary/45"
+      )}
+    >
+      <div>
+        <div className="text-sm font-medium">{device.name}</div>
+        <div className="text-xs text-muted-foreground">
+          {device.ratedWatts}W
+        </div>
+        <Badge variant={active ? "default" : "outline"} className="mt-2">
+          {active ? "on" : "off"}
+        </Badge>
+      </div>
+
+      <PartBox active={active}>
         {ready ? (
           <wokwi-slide-switch value={active ? 1 : 0} />
         ) : (
           <Fallback label="SW" />
         )}
-        <PartText title={device.name} detail={device.sense} />
-      </WokwiPart>
+      </PartBox>
 
-      <Connector active={active} />
+      <Wire active={active} tone="sense" />
+      <PinNode label={device.sense} active={active} tone="sense" />
+      <PinNode label={device.output} active={active} tone="control" />
+      <Wire active={active} tone="control" />
 
-      <WokwiPart>
-        {ready ? <wokwi-resistor value="220" /> : <Fallback label="R" />}
-        <PartText title="220 ohm" detail="indicator limit" />
-      </WokwiPart>
-
-      <Connector active={active} />
-
-      <WokwiPart>
+      <PartBox active={active} className="gap-2">
         {ready ? <wokwi-ks2e-m-dc5 /> : <Fallback label="Relay" />}
-        <PartText title={`${device.relay} relay`} detail={device.output} />
-      </WokwiPart>
+        <div className="min-w-0">
+          <div className="text-xs font-medium">{device.relay}</div>
+          <div className="text-[10px] text-muted-foreground">relay</div>
+        </div>
+      </PartBox>
 
-      <Connector active={active} />
+      <div className="flex flex-col gap-3">
+        <Wire active={active} tone="load" />
+        <Wire active={false} tone="return" />
+      </div>
 
-      <WokwiPart
+      <PartBox
+        active={active}
         className={cn(
           "rounded-full",
-          active && "shadow-[0_0_22px_hsl(var(--primary)/0.45)]"
+          active && "shadow-[0_0_22px_hsl(var(--primary)/0.38)]"
         )}
       >
         {ready ? (
@@ -172,57 +244,67 @@ function CircuitRow({
         ) : (
           <Fallback label="LED" />
         )}
-      </WokwiPart>
-
-      <div className="flex h-[78px] items-center rounded-lg border bg-card p-3 shadow-sm">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-medium">
-            {device.name} {device.ratedWatts}W
-          </div>
-          <div className="truncate font-mono text-[10px] text-muted-foreground">
-            {device.id}
-          </div>
-          <Badge variant={active ? "default" : "outline"} className="mt-2">
-            {active ? "on" : "off"}
-          </Badge>
-        </div>
-      </div>
-    </>
-  )
-}
-
-function HeaderLabel({ children }: { children: ReactNode }) {
-  return (
-    <div className="px-1 text-xs font-medium uppercase text-muted-foreground">
-      {children}
+      </PartBox>
     </div>
   )
 }
 
-function Connector({ active }: { active: boolean }) {
+function PinNode({
+  label,
+  active,
+  tone,
+}: {
+  label: string
+  active: boolean
+  tone: "sense" | "control"
+}) {
   return (
-    <div className="flex h-[78px] items-center">
+    <div
+      className={cn(
+        "flex h-12 items-center justify-center rounded-md border bg-muted/40 font-mono text-xs",
+        active && tone === "sense" && "border-sky-500/70 bg-sky-500/10",
+        active && tone === "control" && "border-fuchsia-600/70 bg-fuchsia-600/10"
+      )}
+    >
+      {label}
+    </div>
+  )
+}
+
+function Wire({
+  active,
+  tone,
+}: {
+  active: boolean
+  tone: keyof typeof wireStyles
+}) {
+  return (
+    <div className="flex h-12 items-center">
       <div
         className={cn(
-          "h-1 w-full rounded-full bg-border",
-          active && "bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.55)]"
+          "h-1.5 w-full rounded-full",
+          active ? wireStyles[tone] : "bg-border",
+          tone === "return" && wireStyles.return
         )}
       />
     </div>
   )
 }
 
-function WokwiPart({
+function PartBox({
+  active,
   className,
   children,
 }: {
+  active: boolean
   className?: string
   children: ReactNode
 }) {
   return (
     <div
       className={cn(
-        "flex h-[78px] items-center justify-center gap-2 rounded-lg border bg-card p-2 shadow-sm",
+        "flex h-16 items-center justify-center rounded-md border bg-background p-2",
+        active && "border-primary/50 bg-primary/5",
         className
       )}
     >
@@ -231,19 +313,15 @@ function WokwiPart({
   )
 }
 
-function PartText({
-  title,
-  detail,
-}: {
-  title: string
-  detail: string
-}) {
+function WireLegend() {
   return (
-    <div className="min-w-0">
-      <div className="truncate text-xs font-medium">{title}</div>
-      <div className="truncate font-mono text-[10px] text-muted-foreground">
-        {detail}
-      </div>
+    <div className="mt-5 grid gap-2 rounded-lg border bg-card p-3 text-xs sm:grid-cols-2 lg:grid-cols-4">
+      {legend.map((item) => (
+        <div key={item.label} className="flex items-center gap-2">
+          <span className={cn("h-1.5 w-10 rounded-full", item.className)} />
+          <span className="text-muted-foreground">{item.label}</span>
+        </div>
+      ))}
     </div>
   )
 }
