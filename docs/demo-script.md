@@ -4,7 +4,7 @@ Target length: 3 minutes maximum.
 
 ## 0:00 - 0:20 Opening Problem
 
-Show: dashboard home page at `http://localhost:3000`.
+Show: dashboard home page at `http://localhost:3000` or the deployed dashboard URL.
 
 Say:
 "This is Huntrix's office energy monitor for the Techathon problem. The office uses Discord for daily work, but people leave lights and fans running after hours. Our solution gives the boss one live dashboard and one Discord bot backed by the same simulated IoT state."
@@ -49,15 +49,15 @@ Run:
 ```
 
 Say:
-"The Discord bot does not use random or hardcoded answers. Every command fetches the same `/api/state` endpoint used by the dashboard. If OpenRouter is configured, it turns the live facts into a more natural Discord message. If the LLM is unavailable, the deterministic fallback still works."
+"The Discord bot does not use random or hardcoded answers. Every command fetches the same `/api/state` endpoint used by the dashboard. For the demo the bot can run as a separate worker process from the `bot` package, while the dashboard API can run locally or from the deployed URL. If OpenRouter is configured, it turns the live facts into a more natural Discord message. If the LLM is unavailable, the deterministic fallback still works."
 
 ## 2:05 - 2:30 Architecture
 
 Show:
 
 - `/architecture`
-- System architecture SVG.
-- Discord flow SVG.
+- High-level architecture diagram.
+- Supporting system, dashboard, Discord, and deployment PNG diagrams.
 
 Say:
 "The important design point is one source of truth. Simulated device data flows into the Next.js backend. The web dashboard, hardware preview, AI coach, and Discord bot all read that shared state contract."
@@ -67,9 +67,10 @@ Say:
 Show:
 
 - `/hardware`
-- Wokwi relay/sensing preview.
+- AI-generated hardware schematic.
 - Pin mapping table.
-- `wokwi/diagram.json` or `docs/assets/one-room-hardware-schematic.png`.
+- Wokwi circuit screenshot at the bottom.
+- `wokwi/diagram.json`, `wokwi/sketch.ino`, `docs/assets/one-room-hardware-schematic.png`, or `docs/assets/wokwi.png`.
 
 Say:
 "For hardware, we model one representative room. An ESP32 reads five safe device-state inputs and drives five relay channels for two fans and three lights. LEDs stand in for loads in the simulation; real AC wiring would need certified relays, isolation, fuses, and electrical review."
