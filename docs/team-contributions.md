@@ -1,4 +1,4 @@
-# Team Contributions
+# Team contributions
 
 Team name: **Huntrix**
 
@@ -6,12 +6,12 @@ Team name: **Huntrix**
 
 | Member | University | Primary Area |
 | --- | --- | --- |
-| Touhidul Alam Seyam | BGC Trust University Bangladesh | Team leader, dashboard, and implementation |
-| Abtahee Kabir | Chittagong University of Engineering & Technology | Planning and IoT |
-| Chandni Barua Jowthi | BGC Trust University Bangladesh | Documentation and testing |
-| Noore Tamanna Orny | Chittagong University of Engineering & Technology | Floor plan design |
+| Touhidul Alam Seyam | BGC Trust University Bangladesh | Team leader, dashboard, backend, Discord bot, and AI integration |
+| Abtahee Kabir | Chittagong University of Engineering & Technology | Planning, IoT, Wokwi, and setup validation |
+| Chandni Barua Jowthi | BGC Trust University Bangladesh | Video editing |
+| Noore Tamanna Orny | Chittagong University of Engineering & Technology | Floor plan design, documentation review, and testing checklist |
 
-## Contribution Breakdown
+## Contribution breakdown
 
 ### Touhidul Alam Seyam - Team Leader
 
@@ -28,13 +28,12 @@ Team name: **Huntrix**
 - Reviewed the representative ESP32/Wokwi circuit approach.
 - Helped define fan/light wattage assumptions and room-device mapping.
 - Contributed to the architecture and hardware planning direction.
+- Checked setup notes for the dashboard, bot, and hardware sections.
 
 ### Chandni Barua Jowthi
 
-- Owned documentation quality and submission-readiness checks.
-- Reviewed setup instructions for dashboard, backend, bot, and AI configuration.
-- Prepared testing responsibilities for dashboard live updates and bot command validation.
-- Helped keep the README, checklist, and demo flow understandable for reviewers.
+- Edited the demo video.
+- Helped prepare the video flow around the dashboard, Discord bot, and hardware sections.
 
 ### Noore Tamanna Orny
 
@@ -42,8 +41,10 @@ Team name: **Huntrix**
 - Helped map rooms, corridor, furniture, windows, doors, fans, and lights.
 - Guided the final floor-plan visual style so the dashboard matched the provided office layout.
 - Reviewed visual clarity for light/dark mode and demo presentation.
+- Reviewed README wording, the checklist, and the demo script.
+- Prepared testing responsibilities for dashboard live updates and bot command validation.
 
-## GitHub Evidence Plan
+## GitHub evidence plan
 
 - Add all four members as repository collaborators.
 - Use GitHub Issues for documentation, IoT schematic, floor plan, testing, and demo tasks.

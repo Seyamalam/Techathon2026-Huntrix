@@ -6,29 +6,29 @@ Team: **Huntrix**
 
 Repository name target: `Techathon2026-Huntrix`
 
-The project goal is to monitor office lights and fans through one shared backend, a live animated web dashboard, and a Discord bot. The system uses simulated IoT device data because no physical hardware is required for the preliminary round.
+This project monitors office lights and fans through one shared backend, a live dashboard, and a Discord bot. The device data is simulated because the preliminary round does not require physical hardware.
 
-## Table Of Contents
+## Table of contents
 
-- [Problem Understanding](#problem-understanding)
-- [Required Features](#required-features)
-- [Architecture And Diagrams](#target-architecture)
-- [Tech Stack](#tech-stack)
-- [Dashboard Experience](#dashboard-experience)
-- [Backend Data Model](#backend-data-model)
+- [Problem understanding](#problem-understanding)
+- [Required features](#required-features)
+- [Architecture and diagrams](#target-architecture)
+- [Tech stack](#tech-stack)
+- [Dashboard experience](#dashboard-experience)
+- [Backend data model](#backend-data-model)
 - [API](#api)
-- [Discord Bot Behavior](#discord-bot-behavior)
-- [AI Integration](#ai-integration)
-- [Repository Structure](#repository-structure)
-- [Environment Variables](#environment-variables)
-- [Local Development](#local-development)
-- [Docker Setup](#docker-setup)
-- [Diagrams And Hardware](#diagrams-and-hardware)
-- [Team Contributions](#team-contributions)
+- [Discord bot behavior](#discord-bot-behavior)
+- [AI integration](#ai-integration)
+- [Repository structure](#repository-structure)
+- [Environment variables](#environment-variables)
+- [Local development](#local-development)
+- [Docker setup](#docker-setup)
+- [Diagrams and hardware](#diagrams-and-hardware)
+- [Team contributions](#team-contributions)
 
-## Problem Understanding
+## Problem understanding
 
-The office runs daily coordination through Discord, but lights and fans are often left running after people leave. The required solution should let users:
+The office uses Discord for daily coordination, but lights and fans are often left running after people leave. The solution needs to let users:
 
 - See every room's lights and fans on a live dashboard.
 - Track current power usage across the office and per room.
@@ -44,9 +44,9 @@ The problem statement has one device-count conflict:
 
 This project follows the fixed room/device definition: 15 devices total.
 
-## Required Features
+## Required features
 
-- Shared backend as the single source of truth.
+- One backend state shared by the dashboard and bot.
 - Simulated dynamic device data.
 - Real-time dashboard updates without page refresh.
 - Live device status grouped by room.
@@ -62,7 +62,7 @@ This project follows the fixed room/device definition: 15 devices total.
   - `!advice`
 - System architecture diagram.
 - Representative hardware/electrical schematic for one room.
-- Clear setup and run instructions.
+- Setup and run instructions.
 - Short demo video.
 
 ## Target Architecture
@@ -71,9 +71,9 @@ Both the dashboard and Discord bot read from the same backend state. The bot doe
 
 ![Huntrix high-level architecture](docs/assets/hla.png)
 
-The high-level architecture diagram shows the main flow across ESP32/Wokwi, the backend API, InstantDB, the Next.js dashboard, and the Discord bot. Supporting diagrams are AI-generated PNG image assets, not Mermaid or Graphviz, to match the problem statement requirement.
+The high-level architecture diagram shows the main flow across ESP32/Wokwi, the backend API, InstantDB, the Next.js dashboard, and the Discord bot. Supporting diagrams are PNG image assets rather than Mermaid or Graphviz, which matches the problem statement.
 
-## Detailed System Diagram
+## Detailed system diagram
 
 ![Huntrix system architecture](docs/assets/system-architecture.png)
 
@@ -81,46 +81,46 @@ The high-level architecture diagram shows the main flow across ESP32/Wokwi, the 
 
 - The browser polls `GET /api/state` about every 1.5 seconds.
 - `energy-simulator.ts` generates device states, wattage, timestamps, the Dhaka clock, and alerts.
-- The dashboard updates the floor plan, charts, room cards, alert stream, and hardware preview without refresh.
+- The dashboard updates the floor plan, charts, room cards, alerts, and hardware preview without a refresh.
 - The Discord bot fetches the same `GET /api/state` endpoint for every command.
 - OpenRouter is only used to phrase responses; it does not own or modify the source of truth.
 
-## Web Dashboard Architecture
+## Web dashboard architecture
 
 ![Web dashboard architecture](docs/assets/web-dashboard-architecture.png)
 
-## Discord Bot And AI Flow
+## Discord bot and AI flow
 
 ![Discord bot and AI flow](docs/assets/discord-ai-flow.png)
 
-## Hardware Concept Diagram
+## Hardware concept diagram
 
 ![Representative hardware schematic](docs/assets/one-room-hardware-schematic.png)
 
-The dashboard hardware page renders this relay preview from the same live backend state used by the SVG floor plan, charts, alerts, and Discord bot commands. There is no separate mock state for the hardware view.
+The dashboard hardware page renders the live relay preview from the same backend state used by the SVG floor plan, charts, alerts, and Discord bot commands. The hardware page does not use separate mock data.
 
-## Wokwi Circuit Screenshot
+## Wokwi circuit screenshot
 
 ![Wokwi ESP32 representative circuit](docs/assets/wokwi.png)
 
-## Deployment Diagram
+## Deployment diagram
 
 ![Deployment architecture](docs/assets/deployment-architecture.png)
 
-## Tech Stack
+## Tech stack
 
 - Frontend/backend: Next.js App Router, React, TypeScript
 - UI: Tailwind CSS and shadcn/ui
 - Charts: Recharts through shadcn chart components
 - Icons: Tabler Icons
 - Animation: CSS/SVG animations
-- Shared state: Next.js API route with InstantDB snapshot support
+- Shared state: Next.js API route with optional InstantDB snapshots
 - Discord bot: discord.js
 - Data source: deterministic random simulated IoT device layer with frequent visible toggles
 - Hardware concept: Wokwi ESP32 relay/sensing circuit
 - AI: OpenRouter `openrouter/free` for energy recommendations, with deterministic fallback
 
-## Dashboard Experience
+## Dashboard experience
 
 The dashboard includes:
 
@@ -132,7 +132,7 @@ The dashboard includes:
 - Alerts visible at a glance.
 - Device list grouped by room.
 - Analytics page with live trend, room comparison, and fan/light split.
-- AI Energy Coach with OpenRouter-generated recommendations.
+- AI Energy Coach with OpenRouter recommendations.
 - Discord bot page with command set and live response preview.
 - Architecture page with system and hardware diagrams.
 
@@ -147,7 +147,7 @@ Routes:
 /bot           Discord command guide and live preview
 ```
 
-## Backend Data Model
+## Backend data model
 
 Each simulated device should include:
 
@@ -164,7 +164,7 @@ type Device = {
 };
 ```
 
-The simulator keeps real Asia/Dhaka time for office-hours rules, while device states use deterministic random toggles about every 1.5 seconds so dashboard changes are visible during a short demo.
+The simulator keeps real Asia/Dhaka time for office-hours rules. Device states toggle about every 1.5 seconds so changes are easy to see in a short demo.
 
 ## API
 
@@ -172,13 +172,13 @@ The simulator keeps real Asia/Dhaka time for office-hours rules, while device st
 GET /api/state
 ```
 
-The dashboard polls this endpoint for demo-safe real-time updates, and the Discord bot reads the same endpoint for command responses.
+The dashboard polls this endpoint for live updates. The Discord bot reads the same endpoint for command responses.
 
 ```text
 GET /api/ai-insight
 ```
 
-Returns an AI-generated operational recommendation using OpenRouter when `OPENROUTER_API_KEY` is configured. If the API is unavailable, the endpoint returns a deterministic fallback insight so the demo remains runnable.
+Returns an energy recommendation through OpenRouter when `OPENROUTER_API_KEY` is configured. If the API is unavailable, the endpoint returns fallback advice so the demo still runs.
 
 ## Alert Rules
 
@@ -186,9 +186,9 @@ Returns an AI-generated operational recommendation using OpenRouter when `OPENRO
 - All devices in one room on for more than 2 hours.
 - Optional: unusually high total watt usage.
 
-## Discord Bot Behavior
+## Discord bot behavior
 
-The bot should answer with concise, human-friendly messages from live backend data.
+The bot answers with short Discord messages based on live backend data.
 
 Example commands:
 
@@ -203,9 +203,9 @@ Example commands:
 !offhours
 ```
 
-Bonus behavior: proactively post to a configured channel when a new alert appears.
+It can also post to a configured channel when a new alert appears.
 
-## AI Integration
+## AI integration
 
 The project uses OpenRouter's OpenAI-compatible chat API with the free model router:
 
@@ -215,12 +215,12 @@ OPENROUTER_MODEL=openrouter/free
 
 AI is used in two places:
 
-- Dashboard: the AI Energy Coach summarizes live office usage and recommends the next operational action.
+- Dashboard: the AI Energy Coach summarizes live office usage and recommends what to check next.
 - Discord: `!advice` asks the same live backend state for a concise energy-saving recommendation.
 
-The prompt includes current room loads, active devices, office-hours state, kWh estimate, and active alerts. The AI never owns the source of truth; it only explains the simulated IoT state already produced by the backend. If the OpenRouter key is missing or the free endpoint is unavailable, the app uses rule-based fallback advice.
+The prompt includes current room loads, active devices, office-hours state, kWh estimate, and active alerts. The AI does not store or change device state. It only explains the simulated IoT state produced by the backend. If the OpenRouter key is missing or the free endpoint is unavailable, the app uses rule-based fallback advice.
 
-## Repository Structure
+## Repository structure
 
 ```text
 .
@@ -256,9 +256,9 @@ The prompt includes current room loads, active devices, office-hours state, kWh 
 └── README.md
 ```
 
-## Environment Variables
+## Environment variables
 
-The core dashboard works without any secret keys because the simulated backend lives inside the Next.js app. Discord and AI features need credentials only when you want to test those integrations.
+The dashboard works without secret keys because the simulator runs inside the Next.js app. Discord and AI features need credentials only when you want to test those integrations.
 
 ### Dashboard
 
@@ -266,9 +266,9 @@ Copy `dashboard/.env.example` to `dashboard/.env.local` only if you want optiona
 
 | Variable | Required? | Where to get it | Used for |
 | --- | --- | --- | --- |
-| `OPENROUTER_API_KEY` | Optional | OpenRouter dashboard: create an API key at `https://openrouter.ai/settings/keys` | AI Energy Coach and LLM-written bot-style copy |
+| `OPENROUTER_API_KEY` | Optional | OpenRouter dashboard: create an API key at `https://openrouter.ai/settings/keys` | AI Energy Coach and LLM-written Discord copy |
 | `OPENROUTER_MODEL` | Optional | Use `openrouter/free` for this prototype | Chooses the OpenRouter model/router |
-| `NEXT_PUBLIC_INSTANT_APP_ID` | Optional | Instant dashboard app settings, hosted or self-hosted | Enables InstantDB client snapshot reads |
+| `NEXT_PUBLIC_INSTANT_APP_ID` | Optional | Instant dashboard app settings, hosted or self-hosted | Enables InstantDB snapshot reads in the browser |
 | `INSTANT_APP_ADMIN_TOKEN` | Optional | Instant dashboard admin token/app settings | Enables backend writes to InstantDB |
 | `NEXT_PUBLIC_INSTANT_API_URI` | Optional | Self-hosted Instant backend URL, usually `http://localhost:8888` | Browser-facing Instant API endpoint |
 | `NEXT_PUBLIC_INSTANT_WEBSOCKET_URI` | Optional | Self-hosted Instant websocket URL, usually `ws://localhost:8888/runtime/session` | Browser-facing Instant realtime websocket |
@@ -287,10 +287,10 @@ Copy `bot/.env.example` to `bot/.env` before running the bot:
 | `ALERT_POLL_SECONDS` | Optional | Any positive number, default `20` | Proactive alert polling interval |
 | `OPENROUTER_API_KEY` | Optional | Same OpenRouter key as dashboard | Natural-language Discord responses |
 | `OPENROUTER_MODEL` | Optional | Use `openrouter/free` | LLM model/router |
-| `INSTANT_APP_ID` | Optional | Instant app settings | Reserved for Instant-aware bot setup |
-| `INSTANT_APP_ADMIN_TOKEN` | Optional | Instant admin token | Reserved for Instant-aware bot setup |
+| `INSTANT_APP_ID` | Optional | Instant app settings | For future Instant-aware bot setup |
+| `INSTANT_APP_ADMIN_TOKEN` | Optional | Instant admin token | For future Instant-aware bot setup |
 
-## Local Development
+## Local development
 
 Run the dashboard:
 
@@ -324,7 +324,7 @@ OPENROUTER_API_KEY=optional_openrouter_key
 OPENROUTER_MODEL=openrouter/free
 ```
 
-## Docker Setup
+## Docker setup
 
 Run the dashboard and shared backend in one command:
 
@@ -372,7 +372,7 @@ Run checks:
 bun run check
 ```
 
-## Diagrams And Hardware
+## Diagrams and hardware
 
 - System diagram: [docs/assets/system-architecture.png](docs/assets/system-architecture.png)
 - High-level architecture diagram: [docs/assets/hla.png](docs/assets/hla.png)
@@ -387,32 +387,32 @@ bun run check
 - Local InstantDB setup: [docs/instantdb-local-setup.md](docs/instantdb-local-setup.md)
 - Interactive architecture page: [`dashboard/app/architecture/page.tsx`](dashboard/app/architecture/page.tsx)
 
-The in-app relay diagram, web dashboard, alert stream, and Discord bot all read the shared backend contract, so a device toggle appears consistently across every demo surface.
+The in-app relay diagram, web dashboard, alert stream, and Discord bot all read the same backend contract. A device toggle shows up consistently across the app.
 
-## Team Contributions
+## Team contributions
 
 | Member | University | Primary Contribution |
 | --- | --- | --- |
 | Touhidul Alam Seyam | BGC Trust University Bangladesh | Team leader, dashboard, backend integration, Discord bot, AI integration |
-| Abtahee Kabir | Chittagong University of Engineering & Technology | Planning, IoT architecture, representative hardware/Wokwi direction |
-| Chandni Barua Jowthi | BGC Trust University Bangladesh | Documentation, setup validation, testing checklist |
-| Noore Tamanna Orny | Chittagong University of Engineering & Technology | Floor plan design, room layout review, visual refinement |
+| Abtahee Kabir | Chittagong University of Engineering & Technology | Planning, IoT architecture, representative hardware/Wokwi direction, setup validation |
+| Chandni Barua Jowthi | BGC Trust University Bangladesh | Video editing |
+| Noore Tamanna Orny | Chittagong University of Engineering & Technology | Floor plan design, documentation review, testing checklist, visual refinement |
 
 See [docs/team-contributions.md](docs/team-contributions.md) for the detailed contribution breakdown.
 
 ## Attribution
 
 - Next.js, React, and TypeScript for the web/backend app.
-- shadcn/ui, Tailwind CSS, and Base UI for interface primitives.
+- shadcn/ui, Tailwind CSS, and Base UI for UI components.
 - Recharts for dashboard visualizations.
 - Tabler Icons for iconography.
 - Sonner for toast notifications.
 - Discord.js for the Discord bot.
-- InstantDB for shared realtime-ready state snapshots.
+- InstantDB for optional state snapshots.
 - OpenRouter `openrouter/free` for optional AI energy recommendations.
 - Wokwi for the representative ESP32 hardware simulation concept.
 - AI coding assistance was used during implementation and documentation, with code reviewed and tested before submission.
 
-## Current Status
+## Current status
 
-The dashboard and Discord bot are implemented as separate packages. The dashboard exposes the shared live state API, and the bot reads from that same endpoint. The repo also includes AI-generated PNG diagrams and a representative Wokwi circuit for the hardware deliverable.
+The dashboard and Discord bot are separate packages. The dashboard exposes the live state API, and the bot reads from that same endpoint. The repo also includes PNG diagrams and a representative Wokwi circuit for the hardware deliverable.
