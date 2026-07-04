@@ -1,7 +1,7 @@
 import { IconExternalLink } from "@tabler/icons-react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardAction,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card"
 import { MermaidDiagram } from "@/components/mermaid-diagram"
 import { PageHeading } from "@/components/page-heading"
+import { cn } from "@/lib/utils"
 
 const wholeSystemDiagram = String.raw`
 flowchart LR
@@ -317,20 +318,15 @@ function DiagramCard({
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
         <CardAction>
-          <Button
-            variant="ghost"
-            size="icon"
-            render={
-              <a
-                href={sourceHref}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`Open ${title} source in GitHub`}
-              />
-            }
+          <a
+            href={sourceHref}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Open ${title} source in GitHub`}
+            className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
           >
             <IconExternalLink />
-          </Button>
+          </a>
         </CardAction>
       </CardHeader>
       <CardContent>

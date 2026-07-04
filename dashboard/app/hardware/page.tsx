@@ -1,7 +1,7 @@
 import { IconCircuitBulb, IconExternalLink } from "@tabler/icons-react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table"
 import { WokwiCircuitPreview } from "@/components/wokwi-circuit-preview"
 import { hardwareDevices } from "@/lib/hardware-circuit"
+import { cn } from "@/lib/utils"
 
 const repoBase = "https://github.com/Seyamalam/Techathon2026-Huntrix/blob/main"
 
@@ -132,20 +133,15 @@ function FileLine({ path, href }: { path: string; href: string }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted p-3">
       <code className="truncate text-xs">{path}</code>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        render={
-          <a
-            href={href}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`Open ${path} in GitHub`}
-          />
-        }
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`Open ${path} in GitHub`}
+        className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
       >
         <IconExternalLink />
-      </Button>
+      </a>
     </div>
   )
 }
