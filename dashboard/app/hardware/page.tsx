@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { WokwiCircuitPreview } from "@/components/wokwi-circuit-preview"
 import { hardwareDevices } from "@/lib/hardware-circuit"
 import { cn } from "@/lib/utils"
 
@@ -38,6 +39,8 @@ export default function HardwarePage() {
       </header>
 
       <section className="flex flex-col gap-5">
+        <WokwiCircuitPreview />
+
         <Card>
           <CardHeader>
             <div className="flex items-start justify-between gap-3">

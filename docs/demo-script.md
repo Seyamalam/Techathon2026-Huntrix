@@ -67,6 +67,7 @@ Say:
 Show:
 
 - `/hardware`
+- Live hardware simulation preview.
 - AI-generated hardware schematic.
 - Pin mapping table.
 - Wokwi circuit screenshot at the bottom.
