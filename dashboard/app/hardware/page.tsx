@@ -1,11 +1,9 @@
-import { IconCircuitBulb, IconExternalLink } from "@tabler/icons-react"
+import { IconExternalLink } from "@tabler/icons-react"
 
-import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -26,45 +24,30 @@ const repoBase = "https://github.com/Seyamalam/Techathon2026-Huntrix/blob/main"
 export default function HardwarePage() {
   return (
     <main className="mx-auto flex w-full max-w-[1500px] flex-col gap-5 p-4 sm:p-6">
-      <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+      <header className="flex flex-col gap-3">
         <div className="flex max-w-3xl flex-col gap-2">
           <h1 className="text-3xl font-semibold tracking-normal">
             Hardware simulation
           </h1>
           <p className="text-sm leading-6 text-muted-foreground">
-            A clean in-app preview of the Wokwi representative circuit for one
-            room: ESP32, five safe state inputs, and five low-voltage load
-            indicators.
+            This relay preview reads the same live backend state as the floor
+            plan, charts, alerts, and Discord bot, so every interface stays in
+            sync during the demo.
           </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge>Wokwi concept</Badge>
-          <Badge variant="outline">ESP32</Badge>
-          <Badge variant="secondary">drawing-room</Badge>
         </div>
       </header>
 
       <section className="flex flex-col gap-5">
+        <WokwiCircuitPreview />
+
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <IconCircuitBulb data-icon="inline-start" />
-              Relay and sensing preview
-            </CardTitle>
-            <CardDescription>
-              The representative room circuit mirrors the simulator contract:
-              device id, room, type, status, watts, ratedWatts.
-            </CardDescription>
+            <CardTitle>Pin mapping</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-5">
-            <WokwiCircuitPreview />
-
+          <CardContent>
             <div className="rounded-lg border">
-              <div className="border-b px-4 py-3">
-                <div className="font-medium">Pin mapping</div>
-                <div className="text-sm text-muted-foreground">
-                  Matches `wokwi/diagram.json` and `wokwi/sketch.ino`.
-                </div>
+              <div className="border-b px-4 py-3 text-sm text-muted-foreground">
+                Matches `wokwi/diagram.json` and `wokwi/sketch.ino`.
               </div>
               <Table>
                 <TableHeader>
@@ -99,9 +82,6 @@ export default function HardwarePage() {
         <Card>
           <CardHeader>
             <CardTitle>Repository files</CardTitle>
-            <CardDescription>
-              Use these for the hardware deliverable.
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-4">

@@ -26,7 +26,7 @@ const legend = [
 
 export function WokwiCircuitPreview() {
   const [ready, setReady] = useState(false)
-  const { state, connection } = useEnergyState()
+  const { state } = useEnergyState()
   const drawingRoom = state.rooms.find((room) => room.id === "drawing-room")
   const liveDevices = useMemo(
     () =>
@@ -38,7 +38,6 @@ export function WokwiCircuitPreview() {
   )
   const activeCount =
     drawingRoom?.devices.filter((device) => device.status === "on").length ?? 0
-  const roomWatts = drawingRoom?.totalWatts ?? 0
 
   useEffect(() => {
     let active = true
@@ -56,23 +55,6 @@ export function WokwiCircuitPreview() {
 
   return (
     <div className="overflow-hidden rounded-lg border bg-muted/20">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b bg-card px-4 py-3">
-        <div>
-          <div className="text-sm font-medium">Drawing Room Wokwi preview</div>
-          <div className="text-xs text-muted-foreground">
-            One representative room: five sensed switches, five relay channels,
-            five loads.
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant={connection === "live" ? "default" : "secondary"}>
-            {connection}
-          </Badge>
-          <Badge variant="outline">{activeCount}/5 on</Badge>
-          <Badge variant="outline">{roomWatts}W</Badge>
-        </div>
-      </div>
-
       <div className="overflow-x-auto bg-background">
         <div className="min-w-[1320px] p-5">
           <div className="mb-5">
@@ -80,7 +62,7 @@ export function WokwiCircuitPreview() {
               ESP32 relay and state-sensing circuit
             </div>
             <div className="text-sm text-muted-foreground">
-              Color-coded wiring mirrors the simulator pins for one room.
+              Synced with the live backend, dashboard, and Discord bot.
             </div>
           </div>
 

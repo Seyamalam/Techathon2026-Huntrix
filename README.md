@@ -242,6 +242,8 @@ flowchart TB
   Safety -.-> Relay
 ```
 
+The dashboard hardware page renders this relay preview from the same live backend state used by the SVG floor plan, charts, alerts, and Discord bot commands. There is no separate mock state for the hardware view.
+
 ## Deployment Diagram
 
 ```mermaid
@@ -482,6 +484,8 @@ bun run check
 - Wokwi representative circuit: [wokwi/diagram.json](wokwi/diagram.json)
 - Wokwi sketch: [wokwi/sketch.ino](wokwi/sketch.ino)
 - Live Mermaid diagrams: [`dashboard/app/architecture/page.tsx`](dashboard/app/architecture/page.tsx)
+
+The in-app relay diagram, web dashboard, alert stream, and Discord bot all read the shared backend contract, so a device toggle appears consistently across every demo surface.
 
 ## Team Contributions
 

@@ -114,15 +114,20 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="State API">
+                <SidebarMenuButton
+                  tooltip="Open live state JSON"
+                  render={
+                    <a href="/api/state" target="_blank" rel="noreferrer" />
+                  }
+                >
                   <IconActivity />
                   <span>State API</span>
                 </SidebarMenuButton>
-                <SidebarMenuBadge>1</SidebarMenuBadge>
+                <SidebarMenuBadge>JSON</SidebarMenuBadge>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  tooltip="Discord Bot"
+                  tooltip="Open Discord bot commands"
                   render={<Link href="/bot" />}
                 >
                   <IconBrandDiscord />
