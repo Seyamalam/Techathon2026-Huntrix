@@ -130,6 +130,7 @@ The dashboard includes:
 - Room-level power cards.
 - Animated total watt meter.
 - Alerts visible at a glance.
+- Loads in the default theme of the user's system. Toggle between light and dark mode by simply pressing D on keyboard. 
 - Device list grouped by room.
 - Analytics page with live trend, room comparison, and fan/light split.
 - AI Energy Coach with OpenRouter recommendations.
