@@ -139,6 +139,41 @@ export default function HardwarePage() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <CardTitle>Wokwi circuit screenshot</CardTitle>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  The Wokwi view shows the ESP32 representative room circuit
+                  used for the hardware concept: five sensed controls, relay
+                  channels, and load indicators for two fans and three lights.
+                </p>
+              </div>
+              <a
+                href={`${repoBase}/docs/assets/wokwi.png`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Open Wokwi screenshot in GitHub"
+                className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+              >
+                <IconExternalLink />
+              </a>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-hidden rounded-lg border bg-muted/20">
+              <Image
+                src="/diagrams/wokwi.png"
+                alt="Wokwi ESP32 representative room circuit screenshot"
+                width={1728}
+                height={867}
+                className="h-auto w-full"
+              />
+            </div>
+          </CardContent>
+        </Card>
       </section>
     </main>
   )

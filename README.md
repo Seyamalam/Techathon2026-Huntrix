@@ -99,6 +99,10 @@ The high-level architecture diagram shows the main flow across ESP32/Wokwi, the 
 
 The dashboard hardware page renders this relay preview from the same live backend state used by the SVG floor plan, charts, alerts, and Discord bot commands. There is no separate mock state for the hardware view.
 
+## Wokwi Circuit Screenshot
+
+![Wokwi ESP32 representative circuit](docs/assets/wokwi.png)
+
 ## Deployment Diagram
 
 ![Deployment architecture](docs/assets/deployment-architecture.png)
@@ -376,6 +380,7 @@ bun run check
 - Discord bot and AI diagram: [docs/assets/discord-ai-flow.png](docs/assets/discord-ai-flow.png)
 - Deployment diagram: [docs/assets/deployment-architecture.png](docs/assets/deployment-architecture.png)
 - Hardware schematic: [docs/assets/one-room-hardware-schematic.png](docs/assets/one-room-hardware-schematic.png)
+- Wokwi screenshot: [docs/assets/wokwi.png](docs/assets/wokwi.png)
 - Hardware explanation: [docs/hardware-schematic.md](docs/hardware-schematic.md)
 - Wokwi representative circuit: [wokwi/diagram.json](wokwi/diagram.json)
 - Wokwi sketch: [wokwi/sketch.ino](wokwi/sketch.ino)
