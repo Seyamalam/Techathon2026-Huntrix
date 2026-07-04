@@ -2,7 +2,11 @@
 
 The system has one source of truth: the backend state exposed by the dashboard package. The simulated device layer creates live device state, and both the dashboard and Discord bot read the same backend contract.
 
-Official diagrams are AI-generated PNG image artifacts, not Mermaid or Graphviz.
+The high-level architecture diagram shows the core system flow across ESP32/Wokwi, the backend API, InstantDB, the Next.js dashboard, and the Discord bot. Supporting diagrams are AI-generated PNG image artifacts, not Mermaid or Graphviz.
+
+## High-Level Architecture
+
+![Huntrix high-level architecture](assets/hla.png)
 
 ## Whole System
 

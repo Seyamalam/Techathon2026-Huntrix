@@ -69,9 +69,13 @@ This project follows the fixed room/device definition: 15 devices total.
 
 Both the dashboard and Discord bot read from the same backend state. The bot does not generate independent random data.
 
-![Huntrix system architecture](docs/assets/system-architecture.png)
+![Huntrix high-level architecture](docs/assets/hla.png)
 
-Official diagrams are AI-generated PNG image assets, not Mermaid or Graphviz, to match the problem statement requirement.
+The high-level architecture diagram shows the main flow across ESP32/Wokwi, the backend API, InstantDB, the Next.js dashboard, and the Discord bot. Supporting diagrams are AI-generated PNG image assets, not Mermaid or Graphviz, to match the problem statement requirement.
+
+## Detailed System Diagram
+
+![Huntrix system architecture](docs/assets/system-architecture.png)
 
 ## Runtime Data Flow
 
@@ -367,6 +371,7 @@ bun run check
 ## Diagrams And Hardware
 
 - System diagram: [docs/assets/system-architecture.png](docs/assets/system-architecture.png)
+- High-level architecture diagram: [docs/assets/hla.png](docs/assets/hla.png)
 - Web dashboard diagram: [docs/assets/web-dashboard-architecture.png](docs/assets/web-dashboard-architecture.png)
 - Discord bot and AI diagram: [docs/assets/discord-ai-flow.png](docs/assets/discord-ai-flow.png)
 - Deployment diagram: [docs/assets/deployment-architecture.png](docs/assets/deployment-architecture.png)
